@@ -1,0 +1,24 @@
+Timestamp,"Participant ID
+(use S0001, S0002, etc)",I have read the participant information and consent to take part in this study. I understand I can withdraw at any time,Age bracket,Years of professional computer use,Prior cybersecurity training?,"Job role / Department 
+e.g., Software Engineer, Finance, Admin","On a scale of 1-5, how important is data privacy to you in your professional role?",How confident are you in identifying a phishing email?,How would you rate your overall digital/computer literacy?,I feel stressed at work most days.,I tend to follow requests that appear to come from managers.,Multitasking frequency,Optional comments,Would you like to be contacted to withdraw your data if you later request it?
+24/09/2025 00:55:02,S0001,I Consent,18–25,5+,Yes,Software Developer,5,5,4,1,4,Often,,
+25/09/2025 17:08:35,S0002,I Consent,18–25,5+,Yes,Software engineer ,5,5,5,1,5,Sometimes,,
+25/09/2025 21:50:18,S0003,I Consent,18–25,1 - 3,Yes,Software Engineer,5,5,5,1,5,Always,,
+25/09/2025 22:17:11,S0004,I Consent,18–25,5+,Yes,Network engineer ,5,3,4,5,3,Often,,
+25/09/2025 22:24:55,S0002,I Consent,18–25,1 - 3,No,"Program associate, NGO",3,3,3,2,3,Often,No,No
+25/09/2025 22:24:55,S0001,I Consent,18–25,1 - 3,No,"Program associate, NGO",3,3,3,4,3,Sometimes,No,No
+25/09/2025 22:34:37,S0003,I Consent,26 - 35,1 - 3,No,Senior executive ,3,3,3,3,3,Sometimes,No ,No
+25/09/2025 22:41:17,0004,I Consent,18–25,3 - 5,Yes,Data entry operator ,5,5,5,1,4,Always,None,No
+25/09/2025 22:44:29,S0005,I Consent,26 - 35,1 - 3,No,Finance ,4,4,4,3,2,Rarely,Yes,No
+25/09/2025 22:45:05,S0006,I Consent,18–25,5+,No,Engineering ,5,5,5,3,3,Always,,
+25/09/2025 22:48:08,S0005,I Consent,18–25,1 - 3,Yes,Software engineering ,5,5,4,4,5,Always,,
+25/09/2025 22:52:44,S0007,I Consent,18–25,3 - 5,No,Designer ,2,2,3,3,3,Never,Good ,No
+25/09/2025 22:57:50,S0006,I Consent,18–25,3 - 5,Yes,SoC Analyst,5,4,4,3,3,Often,,Yes
+27/09/2025 03:35:22,S0011,I Consent,18–25,5+,No,Software engineer ,5,4,3,2,4,Sometimes,,
+27/09/2025 03:35:32,S0012,I Consent,18–25,3 - 5,Yes,Software engineer ,5,5,5,1,5,Always,,
+27/09/2025 22:28:19,S00015,I Consent,26 - 35,1 - 3,Yes,Data analyst ,5,5,5,5,4,Often,,Yes 
+27/09/2025 22:31:07,S0017,I Consent,26 - 35,1 - 3,Yes,Sr Data Analyst ,4,5,4,4,4,Rarely,,
+27/09/2025 22:41:58,S0015,I Consent,18–25,3 - 5,No,AI,5,5,4,3,4,Sometimes,,yes
+28/09/2025 00:04:23,S0016,I Consent,18–25,0–1,Yes,CSE DEPARTMENT ,4,3,4,3,3,Sometimes,,
+28/09/2025 00:05:41,S0017,I Consent,18–25,1 - 3,No,He manager,5,5,5,2,5,Often,,
+28/09/2025 03:50:08,S0019,I Don't Consent,26 - 35,3 - 5,Yes,Stylist,5,3,4,3,4,Often,Nothing ,
