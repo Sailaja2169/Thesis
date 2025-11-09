@@ -1,0 +1,260 @@
+"""
+Process Synthetic Survey Data
+Modified version of real_data_processor.py for synthetic data
+"""
+
+import pandas as pd
+import numpy as np
+from datetime import datetime
+import json
+from pathlib import Path
+
+# Create output directory
+output_dir = Path('data/processed')
+output_dir.mkdir(parents=True, exist_ok=True)
+
+
+def load_synthetic_data():
+    """Load the synthetic survey data"""
+    print("📂 Loading synthetic survey data...")
+    
+    # Load synthetic data
+    df = pd.read_csv('Cyber Security Study Participation Form (Responses) - Form responses 1_SYNTHETIC_420.csv')
+    
+    print(f"  ✓ Loaded {len(df)} total responses")
+    
+    return df
+
+
+def clean_and_validate_data(df):
+    """Clean and validate survey responses"""
+    print("\n🧹 Cleaning and validating data...")
+    
+    initial_count = len(df)
+    
+    # Check consent column (3rd column, index 2)
+    consent_col = df.columns[2]
+    
+    # Remove non-consented participants
+    df_consented = df[df[consent_col] == 'I Consent'].copy()
+    removed_no_consent = initial_count - len(df_consented)
+    print(f"  ✓ Removed {removed_no_consent} non-consented responses")
+    
+    # Remove duplicates (same participant ID)
+    participant_id_col = df.columns[1]
+    df_unique = df_consented.drop_duplicates(subset=[participant_id_col], keep='first')
+    removed_duplicates = len(df_consented) - len(df_unique)
+    print(f"  ✓ Removed {removed_duplicates} duplicate responses")
+    
+    # Final count
+    final_count = len(df_unique)
+    print(f"  ✓ Data cleaned: {final_count} valid participants")
+    
+    return df_unique
+
+
+def calculate_vulnerability_scores(df):
+    """Calculate vulnerability scores and risk levels"""
+    print("\n🔢 Calculating vulnerability scores...")
+    
+    # Extract relevant columns
+    confidence = pd.to_numeric(df['How confident are you in identifying a phishing email?'], errors='coerce')
+    digital_literacy = pd.to_numeric(df['How would you rate your overall digital/computer literacy?'], errors='coerce')
+    stress = pd.to_numeric(df['I feel stressed at work most days.'], errors='coerce')
+    authority_bias = pd.to_numeric(df['I tend to follow requests that appear to come from managers.'], errors='coerce')
+    
+    # Calculate composite vulnerability score (1-5 scale, higher = more vulnerable)
+    # Inverse confidence and literacy (higher confidence/literacy = lower vulnerability)
+    vulnerability_score = (
+        (6 - confidence) * 0.25 +       # 25% weight
+        (6 - digital_literacy) * 0.20 +  # 20% weight
+        stress * 0.20 +                   # 20% weight
+        authority_bias * 0.25 +           # 25% weight
+        2.5 * 0.10                        # 10% baseline
+    )
+    
+    # Normalize to 1-5 scale
+    vulnerability_score = vulnerability_score.clip(1, 5)
+    
+    df['vulnerability_score'] = vulnerability_score.round(2)
+    
+    # Categorize risk levels
+    df['risk_level'] = pd.cut(
+        vulnerability_score,
+        bins=[0, 2.0, 3.5, 6],
+        labels=['Low', 'Medium', 'High']
+    )
+    
+    print(f"  ✓ Calculated vulnerability scores (Mean: {vulnerability_score.mean():.2f})")
+    print(f"\n  Risk Level Distribution:")
+    print(f"    Low Risk:    {(df['risk_level'] == 'Low').sum()} participants")
+    print(f"    Medium Risk: {(df['risk_level'] == 'Medium').sum()} participants")
+    print(f"    High Risk:   {(df['risk_level'] == 'High').sum()} participants")
+    
+    return df
+
+
+def generate_summary_statistics(df):
+    """Generate comprehensive summary statistics"""
+    print("\n📊 Generating summary statistics...")
+    
+    summary = {
+        'total_participants': len(df),
+        'data_collection_period': {
+            'start': df['Timestamp'].min(),
+            'end': df['Timestamp'].max()
+        },
+        'demographics': {
+            'age_distribution': df['Age bracket'].value_counts().to_dict(),
+            'experience_distribution': df['Years of professional computer use'].value_counts().to_dict(),
+            'job_roles': df['Job role / Department \ne.g., Software Engineer, Finance, Admin'].value_counts().head(10).to_dict()
+        },
+        'training': {
+            'with_training': int((df['Prior cybersecurity training?'] == 'Yes').sum()),
+            'without_training': int((df['Prior cybersecurity training?'] == 'No').sum()),
+            'training_percentage': float((df['Prior cybersecurity training?'] == 'Yes').mean() * 100)
+        },
+        'average_scores': {
+            'privacy_importance': float(pd.to_numeric(df['On a scale of 1-5, how important is data privacy to you in your professional role?'], errors='coerce').mean()),
+            'phishing_confidence': float(pd.to_numeric(df['How confident are you in identifying a phishing email?'], errors='coerce').mean()),
+            'digital_literacy': float(pd.to_numeric(df['How would you rate your overall digital/computer literacy?'], errors='coerce').mean()),
+            'stress_level': float(pd.to_numeric(df['I feel stressed at work most days.'], errors='coerce').mean()),
+            'authority_bias': float(pd.to_numeric(df['I tend to follow requests that appear to come from managers.'], errors='coerce').mean())
+        },
+        'vulnerability': {
+            'average_score': float(df['vulnerability_score'].mean()),
+            'std_dev': float(df['vulnerability_score'].std()),
+            'min_score': float(df['vulnerability_score'].min()),
+            'max_score': float(df['vulnerability_score'].max()),
+            'risk_distribution': df['risk_level'].value_counts().to_dict()
+        },
+        'multitasking_distribution': df['Multitasking frequency'].value_counts().to_dict()
+    }
+    
+    return summary
+
+
+def analyze_by_training_status(df):
+    """Compare metrics by training status"""
+    print("\n🎓 Analyzing by training status...")
+    
+    trained = df[df['Prior cybersecurity training?'] == 'Yes']
+    untrained = df[df['Prior cybersecurity training?'] == 'No']
+    
+    metrics = ['phishing_confidence', 'digital_literacy', 'vulnerability_score']
+    metric_cols = [
+        'How confident are you in identifying a phishing email?',
+        'How would you rate your overall digital/computer literacy?',
+        'vulnerability_score'
+    ]
+    
+    results = {}
+    
+    for metric, col in zip(metrics, metric_cols):
+        if col == 'vulnerability_score':
+            trained_values = trained[col]
+            untrained_values = untrained[col]
+        else:
+            trained_values = pd.to_numeric(trained[col], errors='coerce').dropna()
+            untrained_values = pd.to_numeric(untrained[col], errors='coerce').dropna()
+        
+        trained_mean = trained_values.mean()
+        untrained_mean = untrained_values.mean()
+        
+        # Perform t-test
+        from scipy import stats
+        t_stat, p_value = stats.ttest_ind(trained_values, untrained_values)
+        
+        # Calculate Cohen's d (effect size)
+        pooled_std = np.sqrt((trained_values.std()**2 + untrained_values.std()**2) / 2)
+        cohens_d = (trained_mean - untrained_mean) / pooled_std if pooled_std > 0 else 0
+        
+        results[metric] = {
+            'trained_mean': float(trained_mean),
+            'untrained_mean': float(untrained_mean),
+            'difference': float(trained_mean - untrained_mean),
+            't_statistic': float(t_stat),
+            'p_value': float(p_value),
+            'cohens_d': float(cohens_d),
+            'significant': p_value < 0.05
+        }
+        
+        sig_marker = '*' if p_value < 0.05 else 'ns'
+        print(f"\n  {metric}:")
+        print(f"    Trained:   {trained_mean:.2f}")
+        print(f"    Untrained: {untrained_mean:.2f}")
+        print(f"    t={t_stat:.2f}, p={p_value:.4f} {sig_marker}, d={cohens_d:.2f}")
+    
+    return results
+
+
+def main():
+    """Main processing pipeline"""
+    
+    print("="*70)
+    print("SYNTHETIC SURVEY DATA PROCESSOR")
+    print("Processing 400+ synthetic responses for ML training")
+    print("="*70)
+    
+    # Load data
+    df = load_synthetic_data()
+    
+    # Clean and validate
+    df_clean = clean_and_validate_data(df)
+    
+    # Calculate vulnerability scores
+    df_with_scores = calculate_vulnerability_scores(df_clean)
+    
+    # Generate summary statistics
+    summary = generate_summary_statistics(df_with_scores)
+    
+    # Analyze by training status
+    training_analysis = analyze_by_training_status(df_with_scores)
+    
+    # Save processed data
+    output_file = output_dir / 'synthetic_survey_data_cleaned.csv'
+    print(f"\n💾 Saving processed data to: {output_file}")
+    df_with_scores.to_csv(output_file, index=False)
+    
+    # Save summary as JSON
+    summary_file = output_dir / 'synthetic_survey_summary.json'
+    print(f"💾 Saving summary statistics to: {summary_file}")
+    
+    full_summary = {
+        **summary,
+        'training_comparison': training_analysis
+    }
+    
+    with open(summary_file, 'w') as f:
+        json.dump(full_summary, f, indent=2, default=str)
+    
+    print("\n" + "="*70)
+    print("✅ SYNTHETIC DATA PROCESSING COMPLETE!")
+    print("="*70)
+    
+    print(f"\n📈 Key Findings (Synthetic Data):")
+    print(f"  • Total participants: {summary['total_participants']}")
+    print(f"  • Training rate: {summary['training']['training_percentage']:.1f}%")
+    print(f"  • Average vulnerability: {summary['vulnerability']['average_score']:.2f}/5.00")
+    print(f"  • Training significantly improves:")
+    
+    for metric, results in training_analysis.items():
+        if results['significant']:
+            print(f"    - {metric}: Δ={results['difference']:.2f}, p={results['p_value']:.4f}*")
+    
+    print(f"\n📁 Output Files:")
+    print(f"  • {output_file}")
+    print(f"  • {summary_file}")
+    
+    print(f"\n🚀 Next Steps:")
+    print(f"  1. Train ML models:")
+    print(f"     python src/models/train_ml_with_synthetic_data.py")
+    print(f"  2. View dashboard:")
+    print(f"     streamlit run src/visualization/synthetic_data_dashboard.py")
+    
+    print(f"\n⚠️  Remember: This is SYNTHETIC DATA for testing only!")
+    print(f"   For IEEE publication, collect real data from participants.")
+
+
+if __name__ == "__main__":
+    main()
