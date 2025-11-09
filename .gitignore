@@ -1,1 +1,114 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
 venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite
+
+# Sensitive Data & Credentials
+config/config.yaml
+.env
+*.key
+*.pem
+secrets/
+
+# Real Survey Data (Keep only synthetic)
+**/Cyber\ Security\ Study\ Participation\ Form*.csv
+!data/synthetic/**/*.csv
+
+# PDF Documents (May contain sensitive info)
+*.pdf
+!docs/**/*.pdf  # Allow documentation PDFs if needed
+
+# Large Model Files
+models/saved/*.joblib
+models/saved/*.pkl
+models/saved/*.h5
+
+# Temporary Files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# OS Files
+Thumbs.db
+.DS_Store
+
+# Backup Files
+*.bak
+*.backup
+*~
+
+# Results (if they contain sensitive data)
+results/*.csv
+!results/README.md
+
+# Compiled LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+
+# Node modules (if any)
+node_modules/
+
