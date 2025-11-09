@@ -449,10 +449,6 @@ class EnhancedVulnerabilityPredictor:
 
 def main():
     """Example usage"""
-    print("="*60)
-    print("ENHANCED ML MODULE WITH EXPLAINABILITY")
-    print("IEEE Publication-Quality Machine Learning")
-    print("="*60)
     
     print("\n✓ Module includes:")
     print("  - Stacking Ensemble (better accuracy)")
